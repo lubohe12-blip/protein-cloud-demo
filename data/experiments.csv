@@ -1,0 +1,9 @@
+model,dataset,metric,value,note
+ESM2-MLP,CAFA3,micro-F1,0.61,baseline
+ESM2-MLP,CAFA3,macro-F1,0.44,baseline
+ESM2-GNN,CAFA3,micro-F1,0.66,our_method
+ESM2-GNN,CAFA3,macro-F1,0.49,our_method
+GraphEC,CAFA3,micro-F1,0.64,graph_baseline
+GraphEC,CAFA3,macro-F1,0.47,graph_baseline
+GOProteinGNN,CAFA3,micro-F1,0.62,kg_variant
+GOProteinGNN,CAFA3,macro-F1,0.45,kg_variant

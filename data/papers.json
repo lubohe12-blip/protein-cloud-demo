@@ -1,0 +1,34 @@
+[
+  {
+    "id": "alphafold2",
+    "title": "Highly accurate protein structure prediction with AlphaFold",
+    "year": 2021,
+    "keywords": ["structure prediction", "msa", "transformer", "alphafold"],
+    "summary": "AlphaFold2 基于多序列比对和 Evoformer 模块，显著提升蛋白质结构预测精度，尤其在难例上优势明显。",
+    "details": "核心方法结合了注意力与几何约束；优点是端到端且精度高；局限在于对 MSA 质量和计算资源依赖较重。"
+  },
+  {
+    "id": "esm2",
+    "title": "Evolutionary-scale prediction of atomic-level protein structure with ESM-2",
+    "year": 2023,
+    "keywords": ["protein language model", "esm-2", "structure", "plm"],
+    "summary": "ESM-2 使用超大规模蛋白语言模型直接从序列预测结构，在无 MSA 条件下取得接近 SOTA 的表现。",
+    "details": "方法利用自监督 PLM 隐表示做结构回归；优点是无需 MSA，推理速度快；局限是长序列和少数据域的鲁棒性待提升。"
+  },
+  {
+    "id": "graphec",
+    "title": "GraphEC: Graph-enhanced contrastive learning for protein representation",
+    "year": 2022,
+    "keywords": ["graph neural network", "graphenc", "function prediction"],
+    "summary": "GraphEC 将图结构和序列信号对齐，利用对比学习提升蛋白表示，对功能预测任务有效。",
+    "details": "采用残差 GNN 融合结构先验；优点是可解释性好；局限是依赖结构数据，适用范围受限。"
+  },
+  {
+    "id": "proteinkg65",
+    "title": "ProteinKG65 / GOProteinGNN",
+    "year": 2022,
+    "keywords": ["knowledge graph", "goproteingnn", "function prediction", "kg"],
+    "summary": "ProteinKG65 知识图谱和 GOProteinGNN 利用图学习进行功能预测，为大规模蛋白知识建模提供基准。",
+    "details": "核心思想是将蛋白、GO、相互作用建模为多关系图；优点是统一多模态信息；局限在于图谱噪声和推理效率。"
+  }
+]
