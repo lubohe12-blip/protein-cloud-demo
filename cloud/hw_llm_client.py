@@ -38,7 +38,7 @@ def call_llm(messages: List[Mapping[str, str]]) -> str:
     }
 
     try:
-        resp = requests.post(cfg["endpoint"], headers=headers, json=payload, timeout=30)
+        resp = requests.post(cfg["endpoint"], headers=headers, json=payload, timeout=60)
         resp.raise_for_status()
         data = resp.json()
         # 华为云 V2 Chat Completions 格式与 OpenAI 类似，后续可根据文档微调解析

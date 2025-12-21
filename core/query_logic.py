@@ -51,6 +51,22 @@ def _apply_simple_query(df: pd.DataFrame, plan_text: str) -> pd.DataFrame:
     return filtered
 
 
+def _describe_filters(plan_text: str) -> str:
+    text = plan_text.lower()
+    parts = []
+    if "cafa3" in text:
+        parts.append("dataset=CAFA3")
+    if "micro" in text:
+        parts.append("metric=micro-F1")
+    elif "macro" in text:
+        parts.append("metric=macro-F1")
+    if "desc" in text or "最高" in text or "最大" in text:
+        parts.append("value 降序")
+    elif "asc" in text or "最低" in text or "最小" in text:
+        parts.append("value 升序")
+    return "，".join(parts) if parts else "无明显筛选/排序"
+
+
 def _format_results(df: pd.DataFrame) -> str:
     if df.empty:
         return "没有查到符合条件的记录。"
@@ -75,13 +91,25 @@ def answer_query_question(question: str, base_dir: Optional[Path] = None) -> str
 
     # 让大模型润色最终回答，若不可用则返回原始结果
     answer_messages = [
-        {"role": "system", "content": "请将查询结果转为简短自然语言，不要编造数值。"},
+        {
+            "role": "system",
+            "content": (
+                "请将查询结果转为简短自然语言，必须基于给定的结果文本，不要编造或猜测数值；"
+                "如果结果为空，请直接说明无法确定。"
+            ),
+        },
         {
             "role": "user",
             "content": f"用户问题：{question}\n查询计划：{plan_text}\n结果：\n{result_text}",
         },
     ]
+    if filtered.empty:
+        source_note = f"来源：data/experiments.csv；依据：{_describe_filters(plan_text)}"
+        return f"未查到符合条件的实验记录，当前资料不足，无法确定答案。\n\n{source_note}"
+
     final_answer = call_llm(answer_messages)
     if "占位" in final_answer:
-        return f"查询计划（推测）：{plan_text}\n结果：\n{result_text}"
-    return final_answer
+        final_answer = f"查询计划（推测）：{plan_text}\n结果：\n{result_text}"
+
+    source_note = f"来源：data/experiments.csv；依据：{_describe_filters(plan_text)}"
+    return f"{final_answer}\n\n{source_note}"
