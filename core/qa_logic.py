@@ -58,7 +58,8 @@ def _build_prompt(question: str, contexts: List[Dict[str, Any]]) -> List[Dict[st
     system_prompt = (
         "你是一个蛋白质结构与功能预测方向的科研助手。"
         "必须基于我提供的参考内容组织回答；"
-        "如果参考内容不足以支持结论，直接说明“无法确定”，不要臆测或编造。"
+        "如果证据不足，可以给出“推测/可能”式的回答并说明不确定性；"
+        "若完全无法支持结论，再明确说明“无法确定”，不要编造确定性结论。"
     )
     user_prompt = (
          f"【可能有用的参考内容】\n{context_text}\n\n"
@@ -91,17 +92,26 @@ def answer_literature_question(question: str, base_dir: Optional[Path] = None) -
     matched = _search_papers(question, papers)
 
     if not matched:
+        # 没有直接匹配，提供参考清单并表明无法确定
         source_note = _format_sources([])
-        return f"未检索到与问题直接相关的文献，当前资料不足，无法确定答案。\n\n{source_note}"
+        suggestions = "\n".join(f"- {p['title']} ({p['year']}): {p.get('summary','')}" for p in papers[:2])
+        return (
+            "未检索到与问题直接相关的文献，当前资料不足，无法确定答案。"
+            "\n\n可参考现有文献摘要（非确定性推测）：\n"
+            f"{suggestions}\n\n{source_note}"
+        )
 
     messages = _build_prompt(question, matched)
     response = call_llm(messages)
     if not response or "占位" in response:
         summaries = [
-            f"{p['title']} ({p['year']}): {p.get('summary', '暂无摘要')}"
-            for p in matched
+            f"[文献{idx+1}] {p['title']} ({p['year']}): {p.get('summary', '暂无摘要')}"
+            for idx, p in enumerate(matched)
         ]
-        response = "基于检索到的文献摘要：\n" + "\n".join(summaries)
+        response = (
+            "（未使用大模型，基于检索到的文献摘要做推测性回答，可能不完整）\n"
+            + "\n".join(summaries)
+        )
 
     source_note = _format_sources(matched)
     return f"{response}\n\n{source_note}"
