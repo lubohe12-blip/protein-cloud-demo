@@ -92,12 +92,13 @@ def answer_literature_question(question: str, base_dir: Optional[Path] = None) -
     matched = _search_papers(question, papers)
 
     if not matched:
-        # 没有直接匹配，提供参考清单并表明无法确定
+        # 没有直接匹配，提供全局参考清单并表明不确定性
         source_note = _format_sources([])
-        suggestions = "\n".join(f"- {p['title']} ({p['year']}): {p.get('summary','')}" for p in papers[:2])
+        suggestions = "\n".join(
+            f"- {p['title']} ({p['year']}): {p.get('summary','')}" for p in papers
+        )
         return (
-            "未检索到与问题直接相关的文献，当前资料不足，无法确定答案。"
-            "\n\n可参考现有文献摘要（非确定性推测）：\n"
+            "未检索到与问题直接相关的文献。以下是基于当前资料的可能参考方向（推测，非确定性结论）：\n"
             f"{suggestions}\n\n{source_note}"
         )
 
