@@ -27,5 +27,5 @@ streamlit run app.py
 ## 部署到华为云 ECS 的建议步骤
 1) 安装依赖：`pip install -r requirements.txt`
 2) 设置环境变量：`export HW_LLM_ENDPOINT=...`, `HW_LLM_TOKEN=...`, `HW_LLM_MODEL=...`
-3) 启动服务：`streamlit run app.py --server.port 8000 --server.address 0.0.0.0`
-4) 安全组放行端口 8000（或用 Nginx 反代 80 → 8000）。
+3) 启动服务：`streamlit run app.py`
+4) 安全组放行端口 8501

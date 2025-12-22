@@ -79,26 +79,23 @@ def render_chat_area(mode: str) -> str:
 # ----------------------------
 # 处理提问
 # ----------------------------
+
 def handle_question(mode: str, user_input: str) -> None:
-    st.session_state.messages.append(
-        {"role": "user", "content": user_input}
-    )
+    st.session_state.messages.append({"role": "user", "content": user_input})
+
+    # 关键：立刻把用户问题渲染出来（否则要等下一次 rerun 才会出现在历史区）
+    with st.chat_message("user"):
+        st.write(user_input)
 
     with st.chat_message("assistant"):
         with st.spinner("模型正在思考中，请稍候..."):
             if mode == "文献问答":
-                answer = answer_literature_question(
-                    user_input, base_dir=BASE_DIR
-                )
+                answer = answer_literature_question(user_input, base_dir=BASE_DIR)
             else:
-                answer = answer_query_question(
-                    user_input, base_dir=BASE_DIR
-                )
+                answer = answer_query_question(user_input, base_dir=BASE_DIR)
             st.write(answer)
 
-    st.session_state.messages.append(
-        {"role": "assistant", "content": answer}
-    )
+    st.session_state.messages.append({"role": "assistant", "content": answer})
 
 
 # ----------------------------

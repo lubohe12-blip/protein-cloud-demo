@@ -5,13 +5,7 @@ import requests
 
 
 def _get_config():
-    """
-    读取环境变量中的华为云大模型调用配置。
-    这些变量需要在部署到 ECS 时由用户自行设置：
-    - HW_LLM_ENDPOINT: 例如 https://xxx.pangu.huaweicloud.com/api/v2/chat/completions
-    - HW_LLM_TOKEN: Bearer token 或签名后的 token（具体按控制台文档）
-    - HW_LLM_MODEL: 部署的模型名称/ID
-    """
+    
     return {
         "endpoint": os.getenv("HW_LLM_ENDPOINT", "").strip(),
         "token": os.getenv("HW_LLM_TOKEN", "").strip(),
