@@ -12,17 +12,36 @@ def _load_papers(base_dir: Optional[Path]) -> List[Dict[str, Any]]:
         return json.load(f)
 
 
-def _match_papers(question: str, papers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    question_lower = question.lower()
-    matches: List[Dict[str, Any]] = []
+def _search_papers(question: str, papers: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    宽松匹配：根据 id/标题关键词/keywords/摘要中出现的片段计分，返回前 2 篇。
+    """
+    q = question.lower()
+    scored: List[tuple[int, Dict[str, Any]]] = []
     for paper in papers:
-        title_hit = paper.get("title", "").lower()
-        keyword_hits = " ".join(paper.get("keywords", [])).lower()
-        if any(term in question_lower for term in [paper.get("id", ""), title_hit]) or any(
-            kw in question_lower for kw in keyword_hits.split()
-        ):
-            matches.append(paper)
-    return matches
+        score = 0
+        pid = str(paper.get("id", "")).lower()
+        title = paper.get("title", "").lower()
+        keywords = [kw.lower() for kw in paper.get("keywords", [])]
+        summary = paper.get("summary", "").lower()
+        details = paper.get("details", "").lower()
+
+        if pid and pid in q:
+            score += 3
+        if title:
+            # 按词分割，避免必须完整标题匹配
+            score += sum(1 for token in title.split() if token and token in q)
+        score += sum(2 for kw in keywords if kw and kw in q)
+        if summary and any(token in q for token in summary.split()):
+            score += 1
+        if details and any(token in q for token in details.split()):
+            score += 1
+
+        if score > 0:
+            scored.append((score, paper))
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return [p for _, p in scored[:2]]
 
 
 def _build_prompt(question: str, contexts: List[Dict[str, Any]]) -> List[Dict[str, str]]:
@@ -69,7 +88,7 @@ def answer_literature_question(question: str, base_dir: Optional[Path] = None) -
     本地仍保留关键字匹配逻辑，确保在未配置大模型时也能返回结果。
     """
     papers = _load_papers(base_dir)
-    matched = _match_papers(question, papers)
+    matched = _search_papers(question, papers)
 
     if not matched:
         source_note = _format_sources([])
@@ -77,8 +96,12 @@ def answer_literature_question(question: str, base_dir: Optional[Path] = None) -
 
     messages = _build_prompt(question, matched)
     response = call_llm(messages)
-    if "占位" in response:
-        response = "检索到相关文献，但大模型未返回有效内容，无法确定详细答案。"
+    if not response or "占位" in response:
+        summaries = [
+            f"{p['title']} ({p['year']}): {p.get('summary', '暂无摘要')}"
+            for p in matched
+        ]
+        response = "基于检索到的文献摘要：\n" + "\n".join(summaries)
 
     source_note = _format_sources(matched)
     return f"{response}\n\n{source_note}"
