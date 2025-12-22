@@ -55,7 +55,7 @@ def render_sidebar() -> str:
 # 主聊天区域
 # ----------------------------
 def render_chat_area(mode: str) -> str:
-    st.title("蛋白质预测智能问答系统")
+    st.markdown("### 蛋白质预测领域智能问答系统")
     st.caption(
         "基于示例文献与实验数据的领域问答 Demo（支持华为云大模型扩展）"
     )
@@ -103,7 +103,7 @@ def handle_question(mode: str, user_input: str) -> None:
 # ----------------------------
 def main() -> None:
     st.set_page_config(
-        page_title="蛋白质预测问答 & 查数 Demo",
+        page_title="蛋白质预测领域问答 & 查数 Demo",
         page_icon="🧬",
         layout="wide",
     )
